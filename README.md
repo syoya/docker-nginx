@@ -1,2 +1,3 @@
 # docker-nginx
-Nginx container
+
+Nginx with Docker.
