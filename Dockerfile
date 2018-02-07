@@ -1,4 +1,4 @@
-FROM nginx:1.11.13-alpine
+FROM nginx:1.13.8-alpine
 
 WORKDIR /usr/local/bin
 COPY ./run.sh run
