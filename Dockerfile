@@ -1,8 +1,10 @@
 FROM alpine:3.7
 
-LABEL maintainer="NGINX Docker Maintainers <docker-maint@nginx.com>"
+LABEL maintainer="Syoya, Inc. https://github.com/syoya/docker-nginx"
 
 ENV NGINX_VERSION 1.13.10
+ENV NGX_BROTLI_REPO https://github.com/eustas/ngx_brotli.git
+ENV NGX_BROTLI_COMMIT 6a1174446f5a866d3d13615dd2824177570f0a69
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
@@ -49,6 +51,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
+        --add-module=/usr/src/ngx_brotli \
+        --with-cc-opt=-Wno-error \
 	" \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
@@ -65,6 +69,13 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
+    && apk add --no-cache --virtual .ngx_brotli-build-deps \
+		autoconf \
+		libtool \
+		automake \
+		git \
+		g++ \
+		cmake \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o nginx.tar.gz \
 	&& curl -fSL https://nginx.org/download/nginx-$NGINX_VERSION.tar.gz.asc  -o nginx.tar.gz.asc \
 	&& export GNUPGHOME="$(mktemp -d)" \
@@ -84,6 +95,9 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& rm nginx.tar.gz \
+    && git clone  --recursive $NGX_BROTLI_REPO /usr/src/ngx_brotli \
+    && cd /usr/src/ngx_brotli \
+    && git checkout -b $NGX_BROTLI_COMMIT $NGX_BROTLI_COMMIT \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -109,6 +123,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& strip /usr/sbin/nginx* \
 	&& strip /usr/lib/nginx/modules/*.so \
 	&& rm -rf /usr/src/nginx-$NGINX_VERSION \
+    && rm -rf /usr/src/ngx_brotli \
 	\
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
@@ -126,6 +141,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& apk add --no-cache --virtual .nginx-rundeps $runDeps \
 	&& apk del .build-deps \
 	&& apk del .gettext \
+	&& apk del .ngx_brotli-build-deps \
 	&& mv /tmp/envsubst /usr/local/bin/ \
 	\
 	# Bring in tzdata so users could set the timezones through the environment
@@ -143,4 +159,10 @@ EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /usr/local/bin
+COPY ./run.sh run
+COPY ./test.sh test
+RUN chmod a+x run test
+ONBUILD COPY ./conf.d /etc/nginx/conf.d
+
+CMD run
