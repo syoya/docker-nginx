@@ -2,7 +2,7 @@ FROM alpine:3.7
 
 LABEL maintainer="Syoya, Inc. https://github.com/syoya/docker-nginx"
 
-ENV NGINX_VERSION 1.13.12
+ENV NGINX_VERSION 1.14.0
 ENV NGX_BROTLI_REPO https://github.com/eustas/ngx_brotli.git
 ENV NGX_BROTLI_COMMIT e26248ee361c04e25f581b92b85d95681bdffb39
 
