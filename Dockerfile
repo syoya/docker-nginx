@@ -1,8 +1,8 @@
-FROM alpine:3.7
+FROM alpine:edge
 
 LABEL maintainer="Syoya, Inc. https://github.com/syoya/docker-nginx"
 
-ENV NGINX_VERSION 1.14.0
+ENV NGINX_VERSION 1.15.5
 ENV NGX_BROTLI_REPO https://github.com/eustas/ngx_brotli.git
 ENV NGX_BROTLI_COMMIT e26248ee361c04e25f581b92b85d95681bdffb39
 
@@ -53,23 +53,24 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-http_v2_module \
         --add-module=/usr/src/ngx_brotli \
         --with-cc-opt=-Wno-error \
+		--with-openssl-opt=enable-tls1_3 \
 	" \
 	&& addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
-	&& apk add --no-cache --virtual .build-deps \
+	&& apk add --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing --no-cache --virtual .build-deps \
 		gcc \
 		libc-dev \
 		make \
-		openssl-dev \
+		openssl1.1-dev \
 		pcre-dev \
 		zlib-dev \
 		linux-headers \
 		curl \
-		gnupg \
+		gnupg1 \
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
-    && apk add --no-cache --virtual .ngx_brotli-build-deps \
+    && apk add --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing --no-cache --virtual .ngx_brotli-build-deps \
 		autoconf \
 		libtool \
 		automake \
