@@ -51,8 +51,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		--with-compat \
 		--with-file-aio \
 		--with-http_v2_module \
-        --add-module=/usr/src/ngx_brotli \
-        --with-cc-opt=-Wno-error \
+		--add-module=/usr/src/ngx_brotli \
+		--with-cc-opt=-Wno-error \
 		--with-openssl-opt=enable-tls1_3 \
 	" \
 	&& addgroup -S nginx \
@@ -70,7 +70,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 		libxslt-dev \
 		gd-dev \
 		geoip-dev \
-    && apk add --no-cache --virtual .ngx_brotli-build-deps \
+	&& apk add --no-cache --virtual .ngx_brotli-build-deps \
 		autoconf \
 		libtool \
 		automake \
@@ -96,9 +96,9 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& mkdir -p /usr/src \
 	&& tar -zxC /usr/src -f nginx.tar.gz \
 	&& rm nginx.tar.gz \
-    && git clone  --recursive $NGX_BROTLI_REPO /usr/src/ngx_brotli \
-    && cd /usr/src/ngx_brotli \
-    && git checkout -b $NGX_BROTLI_COMMIT $NGX_BROTLI_COMMIT \
+	&& git clone  --recursive $NGX_BROTLI_REPO /usr/src/ngx_brotli \
+	&& cd /usr/src/ngx_brotli \
+	&& git checkout -b $NGX_BROTLI_COMMIT $NGX_BROTLI_COMMIT \
 	&& cd /usr/src/nginx-$NGINX_VERSION \
 	&& ./configure $CONFIG --with-debug \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
@@ -124,7 +124,7 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& strip /usr/sbin/nginx* \
 	&& strip /usr/lib/nginx/modules/*.so \
 	&& rm -rf /usr/src/nginx-$NGINX_VERSION \
-    && rm -rf /usr/src/ngx_brotli \
+	&& rm -rf /usr/src/ngx_brotli \
 	\
 	# Bring in gettext so we can get `envsubst`, then throw
 	# the rest away. To do this, we need to install `gettext`
