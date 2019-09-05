@@ -3,8 +3,8 @@ FROM alpine:3.9
 LABEL maintainer="Syoya, Inc. https://github.com/syoya/docker-nginx"
 
 ENV NGINX_VERSION 1.16.1
-ENV NGX_BROTLI_REPO https://github.com/eustas/ngx_brotli.git
-ENV NGX_BROTLI_COMMIT 8104036af9cff4b1d34f22d00ba857e2a93a243c
+ENV NGX_BROTLI_REPO https://github.com/google/ngx_brotli.git
+ENV NGX_BROTLI_COMMIT 0a3b94e257ac99cbb055e45ed0381a3b79750e5a
 
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& CONFIG="\
